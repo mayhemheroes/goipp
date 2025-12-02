@@ -10,6 +10,7 @@ package goipp
 
 import (
 	"fmt"
+	"math"
 	"testing"
 )
 
@@ -192,6 +193,61 @@ func TestTagGoString(t *testing.T) {
 				"present:  %v\n",
 				test.t, uint32(test.t), test.answer, answer,
 			)
+		}
+	}
+}
+
+// TestTagLimits tests Tag.Limits function
+func TestTagLimits(t *testing.T) {
+	type testData struct {
+		tag      Tag
+		min, max int32
+	}
+
+	tests := []testData{
+		{TagZero, math.MinInt32, math.MaxInt32},
+		{TagOperationGroup, math.MinInt32, math.MaxInt32},
+		{TagJobGroup, math.MinInt32, math.MaxInt32},
+		{TagEnd, math.MinInt32, math.MaxInt32},
+
+		{TagUnsupportedValue, math.MinInt32, math.MaxInt32},
+		{TagDefault, math.MinInt32, math.MaxInt32},
+		{TagUnknown, math.MinInt32, math.MaxInt32},
+		{TagNoValue, math.MinInt32, math.MaxInt32},
+		{TagNotSettable, math.MinInt32, math.MaxInt32},
+		{TagDeleteAttr, math.MinInt32, math.MaxInt32},
+		{TagAdminDefine, math.MinInt32, math.MaxInt32},
+
+		{TagBeginCollection, math.MinInt32, math.MaxInt32},
+		{TagBoolean, math.MinInt32, math.MaxInt32},
+		{TagCharset, 0, 63},
+		{TagDateTime, math.MinInt32, math.MaxInt32},
+		{TagEndCollection, math.MinInt32, math.MaxInt32},
+		{TagEnum, 1, math.MaxInt32},
+		{TagInteger, math.MinInt32, math.MaxInt32},
+		{TagKeyword, 1, 255},
+		{TagLanguage, 0, 63},
+		{TagMimeType, 0, 255},
+		{TagName, 0, 255},
+		{TagNameLang, 0, 255},
+		{TagRange, math.MinInt32, math.MaxInt32},
+		{TagReservedString, math.MinInt32, math.MaxInt32},
+		{TagResolution, math.MinInt32, math.MaxInt32},
+		{TagString, 0, 1023},
+		{TagText, 0, 1023},
+		{TagTextLang, 0, 1023},
+		{TagURI, 0, 1023},
+		{TagURIScheme, 0, 63},
+	}
+
+	for _, test := range tests {
+		min, max := test.tag.Limits()
+		if min != test.min || max != test.max {
+			t.Errorf("testing Tag.Limits:\n"+
+				"tag:              %#v\n"+
+				"min/max expected: %d/%d\n"+
+				"min/max present:  %d/%d\n",
+				test.tag, test.min, test.max, min, max)
 		}
 	}
 }

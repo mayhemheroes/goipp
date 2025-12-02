@@ -10,6 +10,7 @@ package goipp
 
 import (
 	"fmt"
+	"math"
 )
 
 // Tag represents a tag used in the binary representation of an IPP message.
@@ -181,6 +182,87 @@ func (tag Tag) GoString() string {
 	}
 
 	return fmt.Sprintf("goipp.Tag(0x%8.8x)", uint(tag))
+}
+
+// Limits returns min/max limits, implied by the value tag.
+//
+// If tag doesn't imply the value limit, [math.MinInt32] is
+// returned for the lower bound and [math.MaxInt32] is returned
+// for the upper bound. In particular, it happens for the
+// non-value tags.
+func (tag Tag) Limits() (min, max int32) {
+	switch tag {
+	case TagText, TagTextLang:
+		// RFC8011, 5.1.2.
+		return 0, 1023
+
+	case TagName, TagNameLang:
+		// RFC8011, 5.1.3.
+		return 0, 255
+
+	case TagKeyword:
+		// RFC8011, 5.1.4.
+		return 1, 255
+
+	case TagEnum:
+		// RFC8011, 5.1.5.
+		return 1, math.MaxInt32
+
+	case TagURI:
+		// RFC8011, 5.1.6.
+		return 0, 1023
+
+	case TagURIScheme:
+		// RFC8011, 5.1.7.
+		return 0, 63
+
+	case TagCharset:
+		// RFC8011, 5.1.8.
+		return 0, 63
+
+	case TagLanguage:
+		// RFC8011, 5.1.9.
+		return 0, 63
+
+	case TagMimeType:
+		// RFC8011, 5.1.10.
+		return 0, 255
+
+	case TagString:
+		// RFC8011, 5.1.11.
+		return 0, 1023
+
+	case TagBoolean:
+		// RFC8011, 5.1.12.
+		// No implied limit
+		return math.MinInt32, math.MaxInt32
+
+	case TagInteger, TagRange:
+		// RFC8011, 5.1.13., 5.1.14.
+		// All 32-bit signed range available
+		return math.MinInt32, math.MaxInt32
+
+	case TagDateTime:
+		// RFC8011, 5.1.15.
+		// No implied limit
+		return math.MinInt32, math.MaxInt32
+
+	case TagResolution:
+		// RFC8011, 5.1.16.
+		// Limit not applicable
+		return math.MinInt32, math.MaxInt32
+
+	case TagBeginCollection:
+		// RFC8011, 5.1.16.
+		// Limit not applicable
+		return math.MinInt32, math.MaxInt32
+
+	case TagReservedString:
+		// Limit not applicable
+		return math.MinInt32, math.MaxInt32
+	}
+
+	return math.MinInt32, math.MaxInt32
 }
 
 var tagNames = [...]string{
