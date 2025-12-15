@@ -24,7 +24,7 @@ const (
 	OpSendDocument         Op = 0x0006 // Send-Document: Add a file to a job
 	OpSendURI              Op = 0x0007 // Send-URI: Add a URL to a job
 	OpCancelJob            Op = 0x0008 // Cancel-Job: Cancel a job
-	OpGetJobAttributes     Op = 0x0009 // Get-Job-Attribute: Get information about a job
+	OpGetJobAttributes     Op = 0x0009 // Get-Job-Attributes: Get information about a job
 	OpGetJobs              Op = 0x000a // Get-Jobs: Get a list of jobs
 	OpGetPrinterAttributes Op = 0x000b // Get-Printer-Attributes: Get information about a printer
 	OpHoldJob              Op = 0x000c // Hold-Job: Hold a job for printing
@@ -49,7 +49,7 @@ const (
 	OpGetResourceData            Op = 0x001f // Get-Resource-Data: Get resource data
 
 	OpGetResources                Op = 0x0020 // Get-Resources: Get list of resources
-	OpGetPrintSupportFiles        Op = 0x0021 // Get-Printer-Support-Files: Get printer support files
+	OpGetPrintSupportFiles        Op = 0x0021 // Get-Print-Support-Files: Get printer support files
 	OpEnablePrinter               Op = 0x0022 // Enable-Printer: Accept new jobs for a printer
 	OpDisablePrinter              Op = 0x0023 // Disable-Printer: Reject new jobs for a printer
 	OpPausePrinterAfterCurrentJob Op = 0x0024 // Pause-Printer-After-Current-Job: Stop printer after the current job
@@ -90,7 +90,7 @@ const (
 	OpDeregisterOutputDevice       Op = 0x0046 // Deregister-Output-Device: Remove an output device
 	OpUpdateDocumentStatus         Op = 0x0047 // Update-Document-Status: Update document values
 	OpUpdateJobStatus              Op = 0x0048 // Update-Job-Status: Update job values
-	OpupdateOutputDeviceAttributes Op = 0x0049 // Update-Output-Device-Attributes: Update output device values
+	OpUpdateOutputDeviceAttributes Op = 0x0049 // Update-Output-Device-Attributes: Update output device values
 	OpGetNextDocumentData          Op = 0x004a // Get-Next-Document-Data: Scan more document data
 	OpAllocatePrinterResources     Op = 0x004b // Allocate-Printer-Resources: Use resources for a printer
 	OpCreatePrinter                Op = 0x004c // Create-Printer: Create a new service
@@ -169,7 +169,7 @@ var opNames = map[Op]string{
 	OpSendDocument:                    "Send-Document",
 	OpSendURI:                         "Send-URI",
 	OpCancelJob:                       "Cancel-Job",
-	OpGetJobAttributes:                "Get-Job-Attribute",
+	OpGetJobAttributes:                "Get-Job-Attributes",
 	OpGetJobs:                         "Get-Jobs",
 	OpGetPrinterAttributes:            "Get-Printer-Attributes",
 	OpHoldJob:                         "Hold-Job",
@@ -231,7 +231,7 @@ var opNames = map[Op]string{
 	OpDeregisterOutputDevice:          "Deregister-Output-Device",
 	OpUpdateDocumentStatus:            "Update-Document-Status",
 	OpUpdateJobStatus:                 "Update-Job-Status",
-	OpupdateOutputDeviceAttributes:    "Update-Output-Device-Attributes",
+	OpUpdateOutputDeviceAttributes:    "Update-Output-Device-Attributes",
 	OpGetNextDocumentData:             "Get-Next-Document-Data",
 	OpAllocatePrinterResources:        "Allocate-Printer-Resources",
 	OpCreatePrinter:                   "Create-Printer",
@@ -347,8 +347,8 @@ var opGoNames = map[Op]string{
 	OpUpdateActiveJobs:                "goipp.OpUpdateActiveJobs",
 	OpDeregisterOutputDevice:          "goipp.OpDeregisterOutputDevice",
 	OpUpdateDocumentStatus:            "goipp.OpUpdateDocumentStatus",
-	OpUpdateJobStatus:                 "goipp.OpupdateOutputDeviceAttributes",
-	OpupdateOutputDeviceAttributes:    "goipp.OpupdateOutputDeviceAttributes",
+	OpUpdateJobStatus:                 "goipp.OpUpdateJobStatus",
+	OpUpdateOutputDeviceAttributes:    "goipp.OpUpdateOutputDeviceAttributes",
 	OpGetNextDocumentData:             "goipp.OpGetNextDocumentData",
 	OpAllocatePrinterResources:        "goipp.OpAllocatePrinterResources",
 	OpCreatePrinter:                   "goipp.OpCreatePrinter",
