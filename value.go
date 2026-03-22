@@ -119,7 +119,20 @@ func (values Values) Similar(values2 Values) bool {
 	return true
 }
 
-// Value represents an attribute value
+// Value represents an attribute value.
+//
+// It may have one of the following concrete types:
+//
+//   - [Binary]       - binary data
+//   - [Boolean]      - boolean value, true or false
+//   - [Collection]   - collection of attributes
+//   - [Integer]      - 32-bit signed integer
+//   - [Range]        - range of 32-bit signed integers
+//   - [Resolution]   - image resolution
+//   - [String]       - text string
+//   - [TextWithLang] - text with language or name with language
+//   - [Time]         - the datetime value
+//   - [Void]         - no value
 //
 // IPP uses typed values, and type of each value is unambiguously
 // defined by the attribute tag
