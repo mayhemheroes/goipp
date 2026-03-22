@@ -17,12 +17,15 @@ import (
 	"time"
 )
 
-// Values represents a sequence of values with tags.
-// Usually Values used as a "payload" of Attribute
-type Values []struct {
+// TaggedValue represents [Value] with [Tag].
+type TaggedValue struct {
 	T Tag   // The tag
 	V Value // The value
 }
+
+// Values represents a sequence of values with tags.
+// Usually Values used as a "payload" of Attribute.
+type Values []TaggedValue
 
 // Add Value to Values
 func (values *Values) Add(t Tag, v Value) {
