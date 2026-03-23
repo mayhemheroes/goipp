@@ -29,10 +29,7 @@ type Values []TaggedValue
 
 // Add Value to Values
 func (values *Values) Add(t Tag, v Value) {
-	*values = append(*values, struct {
-		T Tag
-		V Value
-	}{t, v})
+	*values = append(*values, TaggedValue{t, v})
 }
 
 // String converts Values to string
