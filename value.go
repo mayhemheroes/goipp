@@ -699,7 +699,24 @@ type Binary []byte
 
 // String converts Binary value to string
 func (v Binary) String() string {
-	return fmt.Sprintf("%x", []byte(v))
+	// Check if the byte slice contains only printable ASCII characters
+	isPrintable := true
+	for _, b := range v {
+		// Allow standard printable ASCII chars (0x20 to 0x7E)
+		// and common whitespaces (\t, \n, \r)
+		if (b < 0x20 || b > 0x7E) && b != '\t' && b != '\n' && b != '\r' {
+			isPrintable = false
+			break
+		}
+	}
+
+	// If it is fully printable text, wrap it in quotes
+	if isPrintable {
+		return fmt.Sprintf("%q", string(v))
+	}
+
+	// Fallback to hex representation for binary payloads
+	return fmt.Sprintf("0x%x", []byte(v))
 }
 
 // Type returns type of Value (TypeBinary for Binary)

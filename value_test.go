@@ -634,8 +634,9 @@ func TestValueString(t *testing.T) {
 
 	tests := []testData{
 		// Simple types
-		{Binary{}, ""},
-		{Binary{1, 2, 3}, "010203"},
+		{Binary{}, `""`},
+		{Binary{1, 2, 3}, "0x010203"},
+		{Binary{'1', '2', '3'}, `"123"`},
 		{Integer(123), "123"},
 		{Integer(-321), "-321"},
 		{Range{-100, 200}, "-100-200"},
