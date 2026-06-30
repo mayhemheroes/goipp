@@ -15,6 +15,8 @@ import (
 	"fmt"
 	"math"
 	"time"
+	"unicode"
+	"unicode/utf8"
 )
 
 // TaggedValue represents [Value] with [Tag].
@@ -332,6 +334,34 @@ type String string
 
 // String converts String value to string
 func (v String) String() string { return string(v) }
+
+// Format implements the fmt.Formatter interface to customize IPP dump output.
+//
+// Behavior by Verb:
+//
+//   - %s, %v: Employs smart formatting with runtime content auto-detection.
+//     It scans the byte slice to determine if it represents clean,
+//     human-readable text.
+//
+//     If the payload is clean UTF-8 text, it outputs a double-quoted string
+//     (e.g., "en-US").  If any invalid UTF-8 sequences or unprintable codes
+//     are found, it falls back to a hexadecimal dump prefixed with "0x"
+//     (e.g., 0x001a4fbc).
+//
+//   - %x, %X: Forces raw hexadecimal serialization. It completely bypasses
+//     content auto-detection and prints pure hex strings. In compliance with
+//     Go standard library conventions, the "0x" prefix is omitted. %X outputs
+//     uppercase hex letters.
+//
+//   - %q: Forces explicit double-quoted string serialization. Non-printable
+//     or malformed binary bytes are safely escaped using standard Go escape
+//     sequences.
+//
+//   - Any other verb: Falls back to a standard Go formatting error message
+//     (e.g., %%!d(Binary)) to gracefully avoid panics.
+func (v String) Format(f fmt.State, verb rune) {
+	Binary(v).Format(f, verb)
+}
 
 // Type returns type of Value (TypeString for String)
 func (String) Type() Type { return TypeString }
@@ -701,24 +731,116 @@ type Binary []byte
 
 // String converts Binary value to string
 func (v Binary) String() string {
-	// Check if the byte slice contains only printable ASCII characters
-	isPrintable := true
-	for _, b := range v {
-		// Allow standard printable ASCII chars (0x20 to 0x7E)
-		// and common whitespaces (\t, \n, \r)
-		if (b < 0x20 || b > 0x7E) && b != '\t' && b != '\n' && b != '\r' {
-			isPrintable = false
-			break
+	return fmt.Sprintf("%x", []byte(v))
+}
+
+// Format implements the fmt.Formatter interface to customize IPP dump output.
+//
+// Behavior by Verb:
+//
+//   - %s, %v: Employs smart formatting with runtime content auto-detection.
+//     It scans the byte slice to determine if it represents clean,
+//     human-readable text.
+//
+//     If the payload is clean UTF-8 text, it outputs a double-quoted string
+//     (e.g., "en-US").  If any invalid UTF-8 sequences or unprintable codes
+//     are found, it falls back to a hexadecimal dump prefixed with "0x"
+//     (e.g., 0x001a4fbc).
+//
+//   - %x, %X: Forces raw hexadecimal serialization. It completely bypasses
+//     content auto-detection and prints pure hex strings. In compliance with
+//     Go standard library conventions, the "0x" prefix is omitted. %X outputs
+//     uppercase hex letters.
+//
+//   - %q: Forces explicit double-quoted string serialization. Non-printable
+//     or malformed binary bytes are safely escaped using standard Go escape
+//     sequences.
+//
+//   - Any other verb: Falls back to a standard Go formatting error message
+//     (e.g., %%!d(Binary)) to gracefully avoid panics.
+func (v Binary) Format(f fmt.State, verb rune) {
+	// Step 1: perform base formatting, ignoring width and precision
+	var base string
+	switch verb {
+	case 'x', 'X':
+		// Force raw hex output without prefix to honor the standard verb meaning
+		format := "%x"
+		if verb == 'X' {
+			format = "%X"
 		}
+		base = fmt.Sprintf(format, []byte(v))
+
+	case 'q':
+		// Force double-quoted string output with escaped unprintable chars
+		base = fmt.Sprintf("%q", string(v))
+
+	case 's', 'v':
+		// Trigger smart auto-detection for text vs binary payload
+		isPrintable := true
+		remaining := []byte(v)
+
+		for len(remaining) > 0 {
+			r, size := utf8.DecodeRune(remaining)
+			if r == utf8.RuneError && size == 1 {
+				// Invalid UTF-8 sequence encountered.
+				//
+				// Note that utf8.DecodeRune may return
+				// utf8.RuneError in two distinct cases:
+				//   - An actual invalid UTF-8 sequence is
+				//     detected.
+				//   - A valid, properly encoded \uFFFD rune
+				//     is encountered.
+				//
+				// To distinguish between them, we check
+				// if size == 1. The standard library
+				// guarantees that a decoding error always
+				// consumes exactly 1 byte.
+				isPrintable = false
+				break
+			}
+
+			// Reject control codes, unassigned runes, and private-use characters
+			switch r {
+			case '\t', '\n', '\v', '\f', '\r':
+			default:
+				if !unicode.IsPrint(r) {
+					isPrintable = false
+					break
+				}
+			}
+
+			remaining = remaining[size:]
+		}
+
+		if isPrintable {
+			base = fmt.Sprintf("%q", string(v))
+		} else {
+			// Prepend 0x for binary data under general verbs for better log clarity
+			base = fmt.Sprintf("0x%x", []byte(v))
+		}
+
+	default:
+		// Fallback for unsupported verbs (like %d) to prevent panics
+		fmt.Fprintf(f, "%%!%c(Binary)", verb)
+		return
 	}
 
-	// If it is fully printable text, wrap it in quotes
-	if isPrintable {
-		return fmt.Sprintf("%q", string(v))
+	// Step 2: use fmt.Fprintf to apply width/precision logic
+	layout := "%"
+
+	if f.Flag('-') {
+		layout += "-"
+	}
+	if w, ok := f.Width(); ok {
+		layout += fmt.Sprintf("%d", w)
+	}
+	if p, ok := f.Precision(); ok {
+		layout += fmt.Sprintf(".%d", p)
 	}
 
-	// Fallback to hex representation for binary payloads
-	return fmt.Sprintf("0x%x", []byte(v))
+	layout += "s"
+
+	fmt.Fprintf(f, layout, base)
 }
 
 // Type returns type of Value (TypeBinary for Binary)

@@ -11,6 +11,7 @@ package goipp
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -634,9 +635,8 @@ func TestValueString(t *testing.T) {
 
 	tests := []testData{
 		// Simple types
-		{Binary{}, `""`},
-		{Binary{1, 2, 3}, "0x010203"},
-		{Binary{'1', '2', '3'}, `"123"`},
+		{Binary{}, ""},
+		{Binary{1, 2, 3}, "010203"},
 		{Integer(123), "123"},
 		{Integer(-321), "-321"},
 		{Range{-100, 200}, "-100-200"},
@@ -670,6 +670,84 @@ func TestValueString(t *testing.T) {
 				"present:  %q\n",
 				reflect.TypeOf(test.v).String(),
 				test.v, test.s, s,
+			)
+		}
+	}
+}
+
+// TestValueFormat tests Value formatting with fmt.Printf and friends
+func TestValueFormat(t *testing.T) {
+	type testData struct {
+		v Value  // Input value
+		f string // Format
+		s string // Expected output string
+	}
+
+	tests := []testData{
+		// Binary tests
+		{Binary{}, "%x", ``},
+		{Binary{0x1, 0x2, 0x3}, "%x", `010203`},
+		{Binary{0xde, 0xad, 0xbe, 0xaf}, "%x", `deadbeaf`},
+		{Binary{0xde, 0xad, 0xbe, 0xaf}, "%X", `DEADBEAF`},
+		{Binary{}, "%q", `""`},
+		{Binary{0x1, 0x2, 0x3}, "%q", `"\x01\x02\x03"`},
+		{Binary{}, "%s", `""`},
+		{Binary{0x1, 0x2, 0x3}, "%s", `0x010203`},
+		{Binary("hello"), "%s", `"hello"`},
+		{Binary("привет"), "%s", `"привет"`},
+		{Binary("hello\tworld"), "%s", `"hello\tworld"`},
+		{Binary("hello\nworld"), "%s", `"hello\nworld"`},
+		{Binary("hello\vworld"), "%s", `"hello\vworld"`},
+		{Binary("hello\fworld"), "%s", `"hello\fworld"`},
+		{Binary("hello\rworld"), "%s", `"hello\rworld"`},
+
+		// String tests
+		{String(""), "%x", ``},
+		{String([]byte{0x1, 0x2, 0x3}), "%x", `010203`},
+		{String([]byte{0xde, 0xad, 0xbe, 0xaf}), "%x", `deadbeaf`},
+		{String([]byte{0xde, 0xad, 0xbe, 0xaf}), "%X", `DEADBEAF`},
+		{String(""), "%q", `""`},
+		{String([]byte{0x1, 0x2, 0x3}), "%q", `"\x01\x02\x03"`},
+		{String(""), "%s", `""`},
+		{String([]byte{0x1, 0x2, 0x3}), "%s", `0x010203`},
+		{String("hello"), "%s", `"hello"`},
+		{String("привет"), "%s", `"привет"`},
+		{String("hello\tworld"), "%s", `"hello\tworld"`},
+		{String("hello\nworld"), "%s", `"hello\nworld"`},
+		{String("hello\vworld"), "%s", `"hello\vworld"`},
+		{String("hello\fworld"), "%s", `"hello\fworld"`},
+		{String("hello\rworld"), "%s", `"hello\rworld"`},
+
+		// Invalid verbs
+		{Binary("hello"), "%d", `%!d(Binary)`},
+		{String("hello"), "%d", `%!d(Binary)`},
+
+		// Width, Precision, flags
+		{Binary("hello"), "%10s", `   "hello"`},
+		{Binary("hello"), "%-10s", `"hello"   `},
+		{Binary("hello"), "%.3s", `"he`},
+		{Binary("привет"), "%.3s", `"пр`},
+
+		{String("hello"), "%10s", `   "hello"`},
+		{String("hello"), "%-10s", `"hello"   `},
+		{String("hello"), "%.3s", `"he`},
+		{String("привет"), "%.3s", `"пр`},
+
+		// Invalid UTF-8 sequences handling
+		{Binary{0x61, 0xFF, 0x62}, "%s", `0x61ff62`},
+		{String([]byte{0x61, 0xFF, 0x62}), "%s", `0x61ff62`},
+	}
+
+	for _, test := range tests {
+		s := fmt.Sprintf(test.f, test.v)
+		if s != test.s {
+			t.Errorf("testing %s.Format:\n"+
+				"value:    %#v\n"+
+				"format:   %q\n"+
+				"expected: %q\n"+
+				"present:  %q\n",
+				reflect.TypeOf(test.v).String(),
+				test.v, test.f, test.s, s,
 			)
 		}
 	}

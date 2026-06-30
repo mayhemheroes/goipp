@@ -29,7 +29,7 @@ func TestFmtAttribute(t *testing.T) {
 				TagCharset,
 				String("utf-8")),
 			out: []string{
-				`ATTR "attributes-charset" charset: utf-8`,
+				`ATTR "attributes-charset" charset: "utf-8"`,
 			},
 		},
 
@@ -41,7 +41,7 @@ func TestFmtAttribute(t *testing.T) {
 				String("utf-8")),
 			indent: 2,
 			out: []string{
-				`  ATTR "attributes-charset" charset: utf-8`,
+				`  ATTR "attributes-charset" charset: "utf-8"`,
 			},
 		},
 
@@ -54,7 +54,7 @@ func TestFmtAttribute(t *testing.T) {
 			indent: 123,
 			out: []string{
 				strings.Repeat(" ", 123) +
-					`ATTR "attributes-charset" charset: utf-8`,
+					`ATTR "attributes-charset" charset: "utf-8"`,
 			},
 		},
 
@@ -129,7 +129,7 @@ func TestFmtAttribute(t *testing.T) {
 				String("same-order")),
 
 			out: []string{
-				`ATTR "page-delivery-supported" keyword: reverse-order same-order`,
+				`ATTR "page-delivery-supported" keyword: "reverse-order" "same-order"`,
 			},
 		},
 
@@ -208,9 +208,9 @@ func TestFmtRequestResponse(t *testing.T) {
 				`    OPERATION Get-Printer-Attributes`,
 				``,
 				`    GROUP operation-attributes-tag`,
-				`    ATTR "attributes-charset" charset: utf-8`,
-				`    ATTR "attributes-natural-language" naturalLanguage: en-us`,
-				`    ATTR "requested-attributes" keyword: printer-name`,
+				`    ATTR "attributes-charset" charset: "utf-8"`,
+				`    ATTR "attributes-natural-language" naturalLanguage: "en-us"`,
+				`    ATTR "requested-attributes" keyword: "printer-name"`,
 				`}`,
 			},
 		},
@@ -247,11 +247,11 @@ func TestFmtRequestResponse(t *testing.T) {
 				`    STATUS successful-ok`,
 				``,
 				`    GROUP operation-attributes-tag`,
-				`    ATTR "attributes-charset" charset: utf-8`,
-				`    ATTR "attributes-natural-language" naturalLanguage: en-us`,
+				`    ATTR "attributes-charset" charset: "utf-8"`,
+				`    ATTR "attributes-natural-language" naturalLanguage: "en-us"`,
 				``,
 				`    GROUP printer-attributes-tag`,
-				`    ATTR "printer-name" nameWithoutLanguage: Kyocera_ECOSYS_M2040dn`,
+				`    ATTR "printer-name" nameWithoutLanguage: "Kyocera_ECOSYS_M2040dn"`,
 				`}`,
 			},
 		},
