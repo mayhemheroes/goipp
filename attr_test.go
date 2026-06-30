@@ -94,8 +94,8 @@ func TestAttributesEqualSimilar(t *testing.T) {
 		},
 
 		{
-			// Different but similar Value types:
-			// Attributes are not equal but similar
+			// String vs Binary: they are equal and similar,
+			// if contains the same sequence of bytes.
 			a1: Attributes{
 				MakeAttr("attr1", TagString, Binary("hello")),
 				MakeAttr("attr2", TagString, String("world")),
@@ -104,7 +104,7 @@ func TestAttributesEqualSimilar(t *testing.T) {
 				MakeAttr("attr1", TagString, String("hello")),
 				MakeAttr("attr2", TagString, Binary("world")),
 			},
-			equal:   false,
+			equal:   true,
 			similar: true,
 		},
 

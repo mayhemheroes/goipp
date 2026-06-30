@@ -732,8 +732,8 @@ func TestValueEqualSimilar(t *testing.T) {
 		{Binary{1, 2, 3}, Binary{4, 5, 6}, false, false},
 		{Binary("hello"), Binary("hello"), true, true},
 		{String("hello"), String("hello"), true, true},
-		{Binary("hello"), String("hello"), false, true},
-		{String("hello"), Binary("hello"), false, true},
+		{Binary("hello"), String("hello"), true, true},
+		{String("hello"), Binary("hello"), true, true},
 
 		// Collections
 		//
@@ -921,7 +921,7 @@ func TestValuesEqualSimilar(t *testing.T) {
 				{TagString, String("hello")},
 				{TagString, Binary("world")},
 			},
-			equal:   false,
+			equal:   true,
 			similar: true,
 		},
 	}

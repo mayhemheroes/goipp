@@ -170,16 +170,30 @@ var (
 	_ = IntegerOrRange(Range{})
 )
 
-// ValueEqual checks if two values are equal
+// ValueEqual reports whether v1 and v2 are equal.
 //
-// Equality means that types and values are equal. For structured
-// values, like Collection, deep comparison is performed
+// Two values are considered equal if they have the same type and value.
+// Structured types (such as Collection) are compared deeply.
+//
+// An exception is made for Binary vs String comparisons: they are
+// considered equal if they represent the same sequence of bytes,
+// regardless of their type difference.
 func ValueEqual(v1, v2 Value) bool {
-	if v1.Type() != v2.Type() {
+	t1 := v1.Type()
+	t2 := v2.Type()
+
+	if t1 != t2 {
+		switch {
+		case t1 == TypeBinary && t2 == TypeString:
+			return bytes.Equal(v1.(Binary), []byte(v2.(String)))
+
+		case t1 == TypeString && t2 == TypeBinary:
+			return bytes.Equal([]byte(v1.(String)), v2.(Binary))
+		}
 		return false
 	}
 
-	switch v1.Type() {
+	switch t1 {
 	case TypeDateTime:
 		return v1.(Time).Equal(v2.(Time).Time)
 	case TypeBinary:
@@ -197,8 +211,6 @@ func ValueEqual(v1, v2 Value) bool {
 // which means the following:
 //   - If values are equal (i.e., ValueEqual() returns true),
 //     they are similar.
-//   - Binary and String values are similar, if they represent
-//     the same sequence of bytes.
 //   - Two collections are similar, if they contain the same
 //     set of attributes (but may be differently ordered) and
 //     values of these attributes are similar.
@@ -207,17 +219,7 @@ func ValueSimilar(v1, v2 Value) bool {
 		return true
 	}
 
-	t1 := v1.Type()
-	t2 := v2.Type()
-
-	switch {
-	case t1 == TypeBinary && t2 == TypeString:
-		return bytes.Equal(v1.(Binary), []byte(v2.(String)))
-
-	case t1 == TypeString && t2 == TypeBinary:
-		return bytes.Equal([]byte(v1.(String)), v2.(Binary))
-
-	case t1 == TypeCollection && t2 == TypeCollection:
+	if v1.Type() == TypeCollection && v2.Type() == TypeCollection {
 		return Attributes(v1.(Collection)).Similar(
 			Attributes(v2.(Collection)))
 	}
