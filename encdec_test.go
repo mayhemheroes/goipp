@@ -304,10 +304,8 @@ func TestDecodeErrors(t *testing.T) {
 		0x01, 0x02, 0x03, 0x04, // Request ID
 	}
 
-	body := []byte{}
-
 	// Message truncated
-	body = []byte{
+	body := []byte{
 		uint8(TagJobGroup),
 		uint8(TagInteger),
 		0x00, 0x04, // Name length + name
@@ -548,10 +546,8 @@ func TestDecodeValueErrors(t *testing.T) {
 		0x01, 0x02, 0x03, 0x04, // Request ID
 	}
 
-	body := []byte{}
-
 	// integer: value must be 4 bytes
-	body = []byte{
+	body := []byte{
 		uint8(TagJobGroup),
 		uint8(TagInteger),
 		0x00, 0x04, // Name length + name
@@ -817,10 +813,8 @@ func TestTagExtension(t *testing.T) {
 		0x01, 0x02, 0x03, 0x04, // Request ID
 	}
 
-	body := []byte{}
-
 	// Extension tag truncated
-	body = []byte{
+	body := []byte{
 		uint8(TagJobGroup),
 		uint8(TagExtension),
 		0x00, 0x04, // Name length + name
