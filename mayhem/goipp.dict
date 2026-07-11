@@ -1,0 +1,70 @@
+# libFuzzer dictionary for goipp IPP wire messages.
+# Helps the fuzzer hit the value-tag and delimiter branches of message.DecodeBytes faster.
+# An IPP message on the wire is:  version(2) opcode/status(2) request-id(4) [attribute-groups] end-tag(0x03)
+# Each attribute group starts with a delimiter tag; each attribute is  value-tag(1) name-len(2) name value-len(2) value.
+
+# ── version / operation prefixes (version=1.1, request-id=1) ──
+"\x01\x01\x00\x02\x00\x00\x00\x01"
+"\x02\x00\x00\x00\x00\x00\x00\x01"
+
+# ── delimiter (group) tags ──
+"\x00"
+"\x01"
+"\x02"
+"\x03"
+"\x04"
+"\x05"
+"\x06"
+"\x07"
+"\x08"
+"\x09"
+"\x0a"
+
+# ── out-of-band value tags ──
+"\x10"
+"\x11"
+"\x12"
+"\x13"
+"\x15"
+"\x16"
+"\x17"
+
+# ── value tags ──
+"\x21"
+"\x22"
+"\x23"
+"\x30"
+"\x31"
+"\x32"
+"\x33"
+"\x34"
+"\x35"
+"\x36"
+"\x37"
+"\x41"
+"\x42"
+"\x43"
+"\x44"
+"\x45"
+"\x46"
+"\x47"
+"\x48"
+"\x49"
+"\x4a"
+"\x7f"
+
+# ── common IPP attribute names + keyword values ──
+"attributes-charset"
+"attributes-natural-language"
+"printer-uri"
+"job-id"
+"job-uri"
+"requesting-user-name"
+"document-format"
+"media-col"
+"media-size"
+"x-dimension"
+"y-dimension"
+"utf-8"
+"en"
+"ipp://localhost/"

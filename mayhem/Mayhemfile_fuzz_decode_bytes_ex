@@ -1,0 +1,9 @@
+project: goipp
+target: fuzz_decode_bytes_ex
+cmds:
+  - cmd: /mayhem/fuzz_decode_bytes_ex
+    libfuzzer: true
+    dictionary: /mayhem/mayhem/goipp.dict
+testsuite:
+  - https://$MAYHEM_DOMAIN/$MAYHEM_PROJECT/$MAYHEM_TARGET/testsuite.tar
+  - file://mayhem/fuzz_decode_bytes_ex/testsuite

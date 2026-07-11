@@ -1,0 +1,9 @@
+project: goipp
+target: fuzz_round_trip
+cmds:
+  - cmd: /mayhem/fuzz_round_trip
+    libfuzzer: true
+    dictionary: /mayhem/mayhem/goipp.dict
+testsuite:
+  - https://$MAYHEM_DOMAIN/$MAYHEM_PROJECT/$MAYHEM_TARGET/testsuite.tar
+  - file://mayhem/fuzz_round_trip/testsuite
